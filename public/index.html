@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <!-- 核心：不发送 Referrer -->
     <meta name="referrer" content="no-referrer">
     <title>E视界 - 免费在线观看电影电视剧 | 高清影视聚合播放器</title>
@@ -52,6 +53,44 @@
                     '<p style="color:#666;margin-top:40px;font-size:14px;">建议：<br>1. 尝试升级 Android System WebView<br>2. 使用更新的电视盒子或手机投屏</p>' +
                     '</div>'
                 );
+            }
+        })();
+    </script>
+
+    <!-- 🔍 调试：显示 User Agent 以检测 WebView 类型 -->
+    <script data-cfasync="false">
+        (function () {
+            // 在所有 Android App 中显示（包括手机版和 TV 版）
+            var ua = navigator.userAgent;
+            var isAndroid = ua.indexOf('Android') > -1;
+            var isWebView = ua.indexOf('wv') > -1;  // 系统 WebView
+            var isGeckoView = ua.indexOf('Gecko/') > -1 && ua.indexOf('Firefox/') > -1;  // GeckoView
+            var isCapacitor = !!window.Capacitor;
+            var isApp = isAndroid && (isWebView || isGeckoView || isCapacitor);
+
+            if (isApp) {
+                window.addEventListener('load', function () {
+                    var ua = navigator.userAgent;
+                    var isGecko = ua.indexOf('Gecko/') > -1 && ua.indexOf('Firefox/') > -1;
+                    var engine = isGecko ? '🦎 GeckoView' : '📱 System WebView';
+
+                    console.log('[WebView 检测]', engine);
+                    console.log('[User Agent]', ua);
+
+                    // 显示一个临时通知
+                    var div = document.createElement('div');
+                    div.id = 'webview-debug';
+                    div.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;background:rgba(0,0,0,0.9);color:#fff;padding:10px;border-radius:8px;font-size:12px;z-index:999999;max-height:100px;overflow:auto;';
+                    div.innerHTML = '<b>' + engine + '</b><br><small>' + ua.substring(0, 100) + '...</small>';
+                    document.body.appendChild(div);
+
+                    // 5秒后自动隐藏
+                    setTimeout(function () {
+                        div.style.transition = 'opacity 0.5s';
+                        div.style.opacity = '0';
+                        setTimeout(function () { div.remove(); }, 500);
+                    }, 5000);
+                });
             }
         })();
     </script>
@@ -162,6 +201,94 @@
             text-rendering: optimizeSpeed;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 📱 移动端 hover 残留修复 */
+        /* 在触摸设备上禁用 DPlayer 控制按钮的 hover 效果 */
+        @media (hover: none) and (pointer: coarse) {
+
+            .dplayer-icons .dplayer-icon:hover,
+            .dplayer-icon:hover,
+            .dplayer-icon.dplayer-play-icon:hover,
+            .dplayer-icon.dplayer-volume-icon:hover,
+            .dplayer-icon.dplayer-setting-icon:hover,
+            .dplayer-icon.dplayer-full-icon:hover,
+            .dplayer-icon.dplayer-full-in-icon:hover,
+            .dplayer-setting-box .dplayer-setting-item:hover,
+            .dplayer-menu-item:hover,
+            .dplayer-bezel-icon:hover,
+            .dplayer-setting-speed-item:hover {
+                /* 重置 hover 状态的样式 */
+                transform: none !important;
+                background: inherit !important;
+                box-shadow: none !important;
+            }
+
+            .dplayer-icon:hover svg,
+            .dplayer-icons .dplayer-icon:hover svg {
+                transform: none !important;
+                filter: none !important;
+            }
+
+            .dplayer-icon:hover svg path,
+            .dplayer-icons .dplayer-icon:hover svg path {
+                fill: rgba(255, 255, 255, 0.9) !important;
+            }
+        }
+
+        /* 📱 全屏播放模式：移除状态栏 padding，让视频占满全屏 */
+        body.dplayer-fullscreen-active {
+            padding-top: 0 !important;
+        }
+
+        /* 📱 DPlayer 全屏容器样式优化 */
+        .dplayer-fulled,
+        .dplayer-web-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 2147483647 !important;
+            background: #000 !important;
+        }
+
+        /* 📱 修复全屏模式下进度条不显示的问题 */
+        /* 覆盖可能存在的隐藏规则，确保进度条在全屏时可见 */
+        .dplayer-fulled .dplayer-bar-wrap,
+        .dplayer-full .dplayer-bar-wrap,
+        .dplayer-web-fullscreen .dplayer-bar-wrap {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+
+        .dplayer-fulled .dplayer-bar,
+        .dplayer-full .dplayer-bar,
+        .dplayer-web-fullscreen .dplayer-bar {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+
+        .dplayer-fulled .dplayer-thumb,
+        .dplayer-full .dplayer-thumb,
+        .dplayer-web-fullscreen .dplayer-thumb {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+
+        .dplayer-fulled .dplayer-bar-time,
+        .dplayer-full .dplayer-bar-time,
+        .dplayer-web-fullscreen .dplayer-bar-time {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        /* 全屏时隐藏导航栏 */
+        body.dplayer-fullscreen-active .navbar-custom {
+            display: none !important;
         }
 
         /* 性能优化：图片默认优化 */
@@ -299,6 +426,11 @@
 
         .dplayer-menu-item:hover {
             background: rgba(229, 9, 20, 0.4) !important;
+        }
+
+        /* 隐藏关于作者及版本号 (通常是最后两项) */
+        .dplayer-menu .dplayer-menu-item:nth-last-child(-n+2) {
+            display: none !important;
         }
 
         /* 11. 时间显示美化 */
@@ -738,6 +870,7 @@
             background: linear-gradient(90deg, rgba(229, 9, 20, 0.6), transparent) !important;
             color: #ff6b81 !important;
             font-weight: bold !important;
+            border-left: 3px solid #e50914 !important;
         }
 
         /* 24. 加载动画自定义 */
@@ -774,9 +907,7 @@
             pointer-events: auto !important;
         }
 
-        /* 全屏时及自动隐藏时控制栏完全隐藏 */
-        .dplayer-fulled .dplayer-controller,
-        .dplayer-full .dplayer-controller,
+        /* ✅ 修复后：仅在控制器被自动隐藏时才隐藏（移除了 .dplayer-fulled 和 .dplayer-full） */
         .dplayer-hide-controller .dplayer-controller {
             opacity: 0 !important;
             visibility: hidden !important;
@@ -786,36 +917,13 @@
             pointer-events: none !important;
         }
 
-        /* 全屏时及自动隐藏时进度条也完全隐藏 */
-        .dplayer-fulled .dplayer-bar-wrap,
-        .dplayer-full .dplayer-bar-wrap,
-        .dplayer-fulled .dplayer-bar,
-        .dplayer-full .dplayer-bar,
-        .dplayer-fulled .dplayer-thumb,
-        .dplayer-full .dplayer-thumb,
-        .dplayer-fulled .dplayer-bar-time,
-        .dplayer-full .dplayer-bar-time,
+        /* ✅ 修复后：仅在控制器被自动隐藏时才隐藏进度条 */
         .dplayer-hide-controller .dplayer-bar-wrap,
         .dplayer-hide-controller .dplayer-bar-time,
         .dplayer-hide-controller .dplayer-thumb {
             opacity: 0 !important;
             visibility: hidden !important;
             pointer-events: none !important;
-        }
-
-        .dplayer-fulled:hover .dplayer-controller,
-        .dplayer-full:hover .dplayer-controller {
-            opacity: 1 !important;
-            visibility: visible !important;
-            transform: translateY(0) !important;
-            bottom: 0 !important;
-            pointer-events: auto !important;
-        }
-
-        .dplayer-fulled:hover .dplayer-bar-wrap,
-        .dplayer-full:hover .dplayer-bar-wrap {
-            opacity: 1 !important;
-            visibility: visible !important;
         }
 
         /* 单击触发显示控制栏 */
@@ -2462,6 +2570,36 @@
                 transform: none !important;
             }
         }
+
+        /* 📱 Android/Capacitor Fullscreen: 只处理必要的全屏适配 */
+        /* DPlayer 全屏模式 - 确保覆盖整个屏幕 */
+        .dplayer-fulled {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 2147483647 !important;
+            background: #000 !important;
+        }
+
+        /* 确保 body 和 html 在全屏时不会滚动，并移除安全区域 padding */
+        html:has(.dplayer-fulled),
+        body:has(.dplayer-fulled) {
+            overflow: hidden !important;
+            padding-top: 0 !important;
+        }
+
+        /* 隐藏导航栏 */
+        html:has(.dplayer-fulled) .navbar-custom,
+        body:has(.dplayer-fulled) .navbar-custom,
+        html:has(.dplayer-web-fullscreen) .navbar-custom,
+        body:has(.dplayer-web-fullscreen) .navbar-custom {
+            display: none !important;
+        }
+
+        /* 📺 网页全屏模式 - 只隐藏导航栏，不覆盖 DPlayer 原生样式 */
+        /* DPlayer 自己会处理网页全屏的布局 */
     </style>
 </head>
 
@@ -3293,6 +3431,17 @@
                         this.updateHistoryScrollNeeded();
                     }, 150);
                 }, { passive: true });
+
+                // 修复：点击任意地方关闭 DPlayer 右键菜单
+                document.addEventListener('click', (e) => {
+                    const menu = document.querySelector('.dplayer-menu');
+                    if (menu && menu.classList.contains('dplayer-menu-show')) {
+                        // 如果点击的不是菜单内部，则关闭菜单
+                        if (!menu.contains(e.target)) {
+                            menu.classList.remove('dplayer-menu-show');
+                        }
+                    }
+                });
 
                 // Store reference to app instance for external access
                 window.vueApp = this;
@@ -5000,6 +5149,134 @@
                             ]
                         });
 
+                        // 监听倍速变化，更新 UI
+                        if (dp.video) {
+                            dp.video.addEventListener('ratechange', () => {
+                                const speed = dp.video.playbackRate;
+                                // 💾 记住用户选择的倍速
+                                try { localStorage.setItem('dplayer_speed', speed); } catch (e) { }
+
+                                const dplayerContainer = document.getElementById('dplayer');
+
+                                // 1. 更新右键菜单文本
+                                const menuItems = dplayerContainer.querySelectorAll('.dplayer-menu-item a');
+                                menuItems.forEach(item => {
+                                    if (item.textContent.includes('当前速度')) {
+                                        item.textContent = `⚡ 当前速度: ${speed}x`;
+                                    }
+                                });
+
+                                // 2. 显示倍速浮层提示
+                                const indicator = dplayerContainer.querySelector('.dplayer-speed-indicator');
+                                if (indicator) {
+                                    indicator.innerText = `倍速: ${speed}x`;
+                                    indicator.classList.add('show');
+                                    clearTimeout(indicator.hideTimer);
+                                    indicator.hideTimer = setTimeout(() => {
+                                        indicator.classList.remove('show');
+                                    }, 1500);
+                                }
+
+                                // 3. 强制更新设置面板中的高亮状态
+                                const speedItems = dplayerContainer.querySelectorAll('.dplayer-setting-speed-item');
+                                speedItems.forEach(item => {
+                                    // DPlayer 的 item 包含 data-speed 属性
+                                    const itemSpeed = parseFloat(item.dataset.speed);
+                                    if (itemSpeed && Math.abs(itemSpeed - speed) < 0.01) {
+                                        item.classList.add('dplayer-setting-speed-current');
+                                    } else {
+                                        item.classList.remove('dplayer-setting-speed-current');
+                                    }
+                                });
+                            });
+                        }
+
+                        // 📱 全屏事件监听 - 使用 Capacitor 插件处理旋转和状态栏
+                        const handleEnterFullscreen = async () => {
+                            console.log('[DPlayer] 进入全屏');
+
+                            // 1. 隐藏导航栏
+                            const navbar = document.querySelector('.navbar-custom');
+                            if (navbar) navbar.style.display = 'none';
+
+                            // 2. 使用 Capacitor 插件
+                            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                                try {
+                                    // 隐藏状态栏并让 WebView 覆盖状态栏区域
+                                    const { StatusBar } = window.Capacitor.Plugins;
+                                    if (StatusBar) {
+                                        // 先让 WebView 覆盖状态栏区域
+                                        await StatusBar.setOverlaysWebView({ overlay: true });
+                                        // 然后隐藏状态栏
+                                        await StatusBar.hide();
+                                        console.log('[Fullscreen] 状态栏已隐藏，WebView 已扩展');
+                                    }
+                                } catch (e) { console.warn('StatusBar error:', e); }
+
+                                try {
+                                    // 锁定横屏
+                                    const { ScreenOrientation } = window.Capacitor.Plugins;
+                                    if (ScreenOrientation) {
+                                        await ScreenOrientation.lock({ orientation: 'landscape' });
+                                        console.log('[Fullscreen] 已锁定横屏');
+                                    }
+                                } catch (e) { console.warn('ScreenOrientation error:', e); }
+                            }
+
+                            // 3. Web API fallback
+                            try {
+                                if (screen.orientation && screen.orientation.lock) {
+                                    await screen.orientation.lock('landscape').catch(() => { });
+                                }
+                            } catch (e) { }
+                        };
+
+                        const handleExitFullscreen = async () => {
+                            console.log('[DPlayer] 退出全屏');
+
+                            // 1. 恢复导航栏
+                            const navbar = document.querySelector('.navbar-custom');
+                            if (navbar) navbar.style.display = '';
+
+                            // 2. 使用 Capacitor 插件
+                            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                                try {
+                                    // 恢复状态栏
+                                    const { StatusBar } = window.Capacitor.Plugins;
+                                    if (StatusBar) {
+                                        // 先显示状态栏
+                                        await StatusBar.show();
+                                        // 恢复 WebView 不覆盖状态栏
+                                        await StatusBar.setOverlaysWebView({ overlay: false });
+                                        console.log('[Fullscreen] 状态栏已恢复');
+                                    }
+                                } catch (e) { console.warn('StatusBar error:', e); }
+
+                                try {
+                                    // 解锁屏幕方向
+                                    const { ScreenOrientation } = window.Capacitor.Plugins;
+                                    if (ScreenOrientation) {
+                                        await ScreenOrientation.unlock();
+                                        console.log('[Fullscreen] 屏幕方向已解锁');
+                                    }
+                                } catch (e) { console.warn('ScreenOrientation error:', e); }
+                            }
+
+                            // 3. Web API fallback
+                            try {
+                                if (screen.orientation && screen.orientation.unlock) {
+                                    screen.orientation.unlock();
+                                }
+                            } catch (e) { }
+                        };
+
+                        dp.on('fullscreen', handleEnterFullscreen);
+                        dp.on('fullscreen_cancel', handleExitFullscreen);
+
+                        // 也监听 web fullscreen 事件
+                        dp.on('webfullscreen', handleEnterFullscreen);
+                        dp.on('webfullscreen_cancel', handleExitFullscreen);
+
                         // ========== 🔧 设置菜单修复 ==========
                         setTimeout(() => {
                             const dplayerContainer = document.getElementById('dplayer');
@@ -5015,11 +5292,206 @@
                                             // 当设置菜单打开时，禁用遮罩层的点击事件
                                             mask.style.pointerEvents = isOpen ? 'none' : 'auto';
                                             console.log('[Settings] Menu ' + (isOpen ? 'OPENED - mask disabled' : 'CLOSED - mask enabled'));
+
+                                            // 打开菜单时，强制刷新一次倍速高亮
+                                            try {
+                                                if (isOpen && typeof dp !== 'undefined' && dp && dp.video) {
+                                                    const speed = dp.video.playbackRate;
+                                                    const dplayerContainer = document.getElementById('dplayer');
+                                                    if (dplayerContainer) {
+                                                        const speedItems = dplayerContainer.querySelectorAll('.dplayer-setting-speed-item');
+                                                        speedItems.forEach(item => {
+                                                            const itemSpeed = parseFloat(item.dataset.speed);
+                                                            if (itemSpeed && Math.abs(itemSpeed - speed) < 0.01) {
+                                                                item.classList.add('dplayer-setting-speed-current');
+                                                            } else {
+                                                                item.classList.remove('dplayer-setting-speed-current');
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            } catch (e) { console.warn('Highlight update failed:', e); }
+
+                                            // 初始化/显示跳过片头片尾 UI
+                                            if (isOpen && window.skipManager) {
+                                                window.skipManager.initUI();
+                                            }
                                         }
                                     });
                                 });
 
                                 observer.observe(settingBox, { attributes: true });
+
+                                // ========== ✨ 跳过片头片尾管理器 ==========
+                                window.skipManager = {
+                                    vue: this,
+                                    config: { intro: 0, outro: 0, enabled: false },
+                                    hasSkippedIntro: false,
+                                    hasSkippedOutro: false,
+
+                                    getKey() {
+                                        const vodName = this.vue.currentGroup?.name || 'default';
+                                        const safeName = vodName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+                                        return `skip_config_${safeName}`;
+                                    },
+                                    load() {
+                                        try {
+                                            const saved = localStorage.getItem(this.getKey());
+                                            if (saved) this.config = JSON.parse(saved);
+                                            else this.config = { intro: 0, outro: 0, enabled: false };
+                                        } catch (e) { }
+                                        this.hasSkippedIntro = false;
+                                        this.hasSkippedOutro = false;
+                                        this.updateUI();
+                                    },
+                                    save() {
+                                        localStorage.setItem(this.getKey(), JSON.stringify(this.config));
+                                        this.updateUI();
+                                    },
+                                    formatTime(seconds) {
+                                        if (!seconds) return '点击设定';
+                                        const m = Math.floor(seconds / 60);
+                                        const s = Math.floor(seconds % 60);
+                                        return `${m}:${s.toString().padStart(2, '0')}`;
+                                    },
+                                    setIntro() {
+                                        if (!dp.video) return;
+                                        const time = Math.floor(dp.video.currentTime);
+                                        if (dp.video.duration && time > dp.video.duration * 0.5) {
+                                            dp.notice('片头时间不能超过视频时长的一半', 2000);
+                                            return;
+                                        }
+                                        this.config.intro = time;
+                                        this.config.enabled = true;
+                                        this.save();
+                                        dp.notice(`已设置片头截止点: ${this.formatTime(this.config.intro)}`);
+                                    },
+                                    setOutro() {
+                                        if (!dp.video) return;
+                                        const time = Math.floor(dp.video.currentTime);
+                                        if (dp.video.duration && time < dp.video.duration * 0.5) {
+                                            dp.notice('片尾起点通常在视频后半部分，请拖动进度条后再设置', 3000);
+                                            return;
+                                        }
+                                        if (this.config.intro > 0 && time <= this.config.intro) {
+                                            dp.notice('片尾时间必须晚于片头', 2000);
+                                            return;
+                                        }
+                                        this.config.outro = time;
+                                        this.config.enabled = true;
+                                        this.save();
+                                        dp.notice(`已设置片尾起点: ${this.formatTime(this.config.outro)}`);
+                                    },
+                                    clear() {
+                                        this.config = { intro: 0, outro: 0, enabled: false };
+                                        this.save();
+                                        dp.notice('已清除跳过配置');
+                                    },
+                                    updateUI() {
+                                        const group = document.querySelector('.dplayer-setting-skip-group');
+                                        if (!group) return;
+                                        const toggleBg = group.querySelector('.dplayer-toggle-icon');
+                                        const toggleKnob = group.querySelector('.toggle-knob');
+                                        if (toggleBg && toggleKnob) {
+                                            if (this.config.enabled) {
+                                                toggleBg.style.background = '#e50914';
+                                                toggleKnob.style.transform = 'translateX(18px)';
+                                            } else {
+                                                toggleBg.style.background = 'rgba(255,255,255,0.2)';
+                                                toggleKnob.style.transform = 'translateX(0)';
+                                            }
+                                        }
+                                        const introVal = group.querySelector('.intro-val');
+                                        if (introVal) introVal.textContent = this.formatTime(this.config.intro);
+                                        const outroVal = group.querySelector('.outro-val');
+                                        if (outroVal) outroVal.textContent = this.formatTime(this.config.outro);
+                                    },
+                                    initUI() {
+                                        const panel = document.querySelector('.dplayer-setting-origin-panel');
+                                        if (!panel || panel.querySelector('.dplayer-setting-skip-group')) {
+                                            if (panel) this.updateUI();
+                                            return;
+                                        }
+                                        const html = `
+                                            <div class="dplayer-setting-skip-group" style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 5px; padding-top: 5px;">
+                                                <div class="dplayer-setting-item dplayer-setting-skip-toggle" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                                                    <span class="dplayer-label" style="white-space: nowrap;">跳过片头片尾</span>
+                                                    <div class="dplayer-toggle-icon" style="position: relative; width: 40px; height: 22px; background: ${this.config.enabled ? '#e50914' : 'rgba(255,255,255,0.2)'}; border-radius: 20px; transition: background 0.3s; flex-shrink: 0;">
+                                                        <div class="toggle-knob" style="position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.4); transform: translateX(${this.config.enabled ? '18px' : '0'});"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="dplayer-setting-item dplayer-setting-set-intro" style="cursor: pointer; justify-content: space-between;">
+                                                    <span class="dplayer-label">设置片头</span>
+                                                    <span class="dplayer-value intro-val" style="opacity: 0.8;">${this.formatTime(this.config.intro)}</span>
+                                                </div>
+                                                <div class="dplayer-setting-item dplayer-setting-set-outro" style="cursor: pointer; justify-content: space-between;">
+                                                    <span class="dplayer-label">设置片尾</span>
+                                                    <span class="dplayer-value outro-val" style="opacity: 0.8;">${this.formatTime(this.config.outro)}</span>
+                                                </div>
+                                                 <div class="dplayer-setting-item dplayer-setting-del-config" style="cursor: pointer; color: #888; font-size: 12px; height: 32px; display: flex; align-items: center; padding: 0 10px; margin-top: 0;">
+                                                    <i class="fas fa-trash-alt" style="margin-right:8px;"></i> 清除跳过配置
+                                                </div>
+                                            </div>
+                                        `;
+                                        panel.insertAdjacentHTML('beforeend', html);
+                                        const group = panel.querySelector('.dplayer-setting-skip-group');
+                                        group.querySelector('.dplayer-setting-skip-toggle').addEventListener('click', () => {
+                                            this.config.enabled = !this.config.enabled;
+                                            this.save();
+                                            dp.notice(this.config.enabled ? '已开启跳过功能' : '已关闭跳过功能');
+                                        });
+                                        group.querySelector('.dplayer-setting-set-intro').addEventListener('click', () => this.setIntro());
+                                        group.querySelector('.dplayer-setting-set-outro').addEventListener('click', () => this.setOutro());
+                                        group.querySelector('.dplayer-setting-del-config').addEventListener('click', () => this.clear());
+                                    },
+                                    check(time) {
+                                        if (!this.config.enabled) return;
+                                        if (this.config.intro > 0 && time < this.config.intro && !this.hasSkippedIntro) {
+                                            dp.seek(this.config.intro);
+                                            dp.notice('已跳过片头');
+                                            this.hasSkippedIntro = true;
+                                        }
+                                        if (this.config.outro > 0 && time > this.config.outro && !this.hasSkippedOutro) {
+                                            dp.notice('已跳过片尾');
+                                            this.hasSkippedOutro = true;
+                                            if (dp.events) dp.events.trigger('ended');
+                                        }
+                                    }
+                                };
+
+                                // 监听播放器事件
+                                dp.on('timeupdate', () => {
+                                    if (dp.video && window.skipManager) window.skipManager.check(dp.video.currentTime);
+                                });
+
+                                dp.on('canplay', () => {
+                                    if (window.skipManager) window.skipManager.load();
+                                });
+
+                                // 初始加载配置
+                                window.skipManager.load();
+
+                                // 注入“下一集”按钮
+                                {
+                                    const iconsRight = dplayerContainer.querySelector('.dplayer-icons-right');
+                                    if (iconsRight && !iconsRight.querySelector('.dplayer-next-icon')) {
+                                        const nextBtnHtml = `
+                                            <div class="dplayer-icon dplayer-next-icon" data-balloon="下一集" data-balloon-pos="up">
+                                                <span class="dplayer-icon-content" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                                                    <i class="fas fa-step-forward" aria-hidden="true" style="font-size:18px;"></i>
+                                                </span>
+                                            </div>
+                                        `;
+                                        iconsRight.insertAdjacentHTML('afterbegin', nextBtnHtml);
+
+                                        const nextBtn = iconsRight.querySelector('.dplayer-next-icon');
+                                        if (nextBtn) {
+                                            nextBtn.addEventListener('click', () => {
+                                                this.playNextEpisode();
+                                            });
+                                        }
+                                    }
+                                }
 
                                 // 再次点击设置按钮时关闭设置菜单
                                 const settingIcon = dplayerContainer.querySelector('.dplayer-setting-icon');
@@ -5056,16 +5528,80 @@
                             }
                         }, 500);
 
-                        // 添加全屏横屏功能（手机端）
-                        dp.on('fullscreen', () => {
+                        // 添加全屏横屏功能（手机端）+ 📱 Android 状态栏管理
+                        // 检测 Capacitor 插件
+                        const { StatusBar } = typeof Capacitor !== 'undefined' ? Capacitor.Plugins : {};
+
+                        // 进入全屏处理函数
+                        const enterFullscreenMode = async () => {
+                            // 1. 标记 body 为全屏状态（移除 safe-area padding）
+                            document.body.classList.add('dplayer-fullscreen-active');
+
+                            // 2. 📱 调用 Android 原生全屏接口（移除 padding + 旋转横屏 + 隐藏状态栏）
+                            if (window.AndroidFullscreen) {
+                                window.AndroidFullscreen.enter();
+                                console.log('[Fullscreen] Android 原生全屏已启用');
+                            }
+
+                            // 3. Capacitor StatusBar 插件（作为备用）
+                            if (StatusBar) {
+                                try {
+                                    await StatusBar.setOverlaysWebView({ overlay: true });
+                                    await StatusBar.hide();
+                                    console.log('[Fullscreen] 状态栏已隐藏');
+                                } catch (e) {
+                                    console.warn('[Fullscreen] StatusBar hide error:', e);
+                                }
+                            }
+
+                            // 4. Web API 锁定横屏（作为备用）
                             if (screen.orientation && screen.orientation.lock) {
                                 screen.orientation.lock('landscape').catch(() => { });
                             }
-                        });
+                        };
 
-                        dp.on('fullscreen_cancel', () => {
+                        // 退出全屏处理函数
+                        const exitFullscreenMode = async () => {
+                            // 1. 移除全屏状态标记（恢复 safe-area padding）
+                            document.body.classList.remove('dplayer-fullscreen-active');
+
+                            // 2. 📱 调用 Android 原生退出全屏接口（恢复 padding + 解锁方向 + 显示状态栏）
+                            if (window.AndroidFullscreen) {
+                                window.AndroidFullscreen.exit();
+                                console.log('[Fullscreen] Android 原生全屏已退出');
+                            }
+
+                            // 3. Capacitor StatusBar 插件（作为备用）
+                            if (StatusBar) {
+                                try {
+                                    await StatusBar.show();
+                                    await StatusBar.setOverlaysWebView({ overlay: false });
+                                    console.log('[Fullscreen] 状态栏已恢复');
+                                } catch (e) {
+                                    console.warn('[Fullscreen] StatusBar show error:', e);
+                                }
+                            }
+
+                            // 4. Web API 解锁屏幕方向（作为备用）
                             if (screen.orientation && screen.orientation.unlock) {
                                 screen.orientation.unlock();
+                            }
+                        };
+
+                        // 监听 DPlayer 全屏事件
+                        dp.on('fullscreen', enterFullscreenMode);
+                        dp.on('fullscreen_cancel', exitFullscreenMode);
+
+                        // 监听 DPlayer Web 全屏事件
+                        dp.on('webfullscreen', enterFullscreenMode);
+                        dp.on('webfullscreen_cancel', exitFullscreenMode);
+
+                        // 监听浏览器原生全屏 API（备用）
+                        document.addEventListener('fullscreenchange', () => {
+                            if (document.fullscreenElement) {
+                                enterFullscreenMode();
+                            } else {
+                                exitFullscreenMode();
                             }
                         });
 
@@ -5376,6 +5912,16 @@
                         // 恢复播放进度
                         let progressRestored = false;
                         dp.on('canplay', () => {
+                            // 💾 恢复倍速设置 (每次视频加载都检查)
+                            try {
+                                const savedSpeed = parseFloat(localStorage.getItem('dplayer_speed'));
+                                if (savedSpeed && !isNaN(savedSpeed) && dp.video) {
+                                    if (Math.abs(dp.video.playbackRate - savedSpeed) > 0.01) {
+                                        dp.speed(savedSpeed);
+                                    }
+                                }
+                            } catch (e) { }
+
                             if (progressRestored) return;
 
                             try {
@@ -5523,6 +6069,11 @@
                             if (movieName) {
                                 this.addToWatchHistory(movieName, poster, episodeName, duration, duration, this.currentGroup);
                             }
+
+                            // 自动播放下一集（非单曲循环模式下）
+                            if (!dp.loop) {
+                                this.playNextEpisode(true);
+                            }
                         });
 
                     } else {
@@ -5663,6 +6214,32 @@
                         setTimeout(() => {
                             this.autoRetryMessage = '';
                         }, 3000);
+                    }
+                },
+
+                // 播放下一集
+                playNextEpisode(auto = false) {
+                    if (!this.episodeList || this.episodeList.length === 0) return;
+
+                    const currentIndex = this.episodeList.findIndex(ep => ep.url === this.currentUrl);
+                    if (currentIndex < 0) return;
+
+                    if (currentIndex < this.episodeList.length - 1) {
+                        const nextEp = this.episodeList[currentIndex + 1];
+                        console.log('播放下一集:', nextEp.name);
+
+                        if (auto) {
+                            if (typeof dp !== 'undefined' && dp.notice) dp.notice(`即将播放下一集: ${nextEp.name}`, 3000);
+                        }
+
+                        this.play(nextEp.url);
+
+                        this.$nextTick(() => {
+                            const activeBtn = document.querySelector('.episode-btn.active');
+                            if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        });
+                    } else {
+                        if (typeof dp !== 'undefined' && dp.notice) dp.notice('已经是最后一集了');
                     }
                 }
             }
